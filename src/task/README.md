@@ -7,7 +7,7 @@ Installs Task, a task runner / simpler Make alternative. Works with 'Taskfile.ym
 
 ```json
 "features": {
-    "ghcr.io/eitsupi/devcontainer-features/go-task:1": {}
+    "ghcr.io/planlx/devcontainer-features/task:1": {}
 }
 ```
 

@@ -165,7 +165,7 @@ find_version_from_git_tags TASK_VERSION "https://github.com/go-task/task"
 check_packages curl ca-certificates
 echo "Downloading Task..."
 mkdir /tmp/go-task
-curl -sL "https://github.com/go-task/task/releases/download/v${TASK_VERSION}/task_linux_${architecture}.tar.gz" | tar xz -C /tmp/go-task
+curl -sL "https://mirror.ghproxy.com/https://github.com/go-task/task/releases/download/v${TASK_VERSION}/task_linux_${architecture}.tar.gz" | tar xz -C /tmp/go-task
 mv "/tmp/go-task/task" /usr/local/bin/task
 
 # Setup completions if needed
