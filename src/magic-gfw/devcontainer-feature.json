@@ -1,0 +1,21 @@
+{
+    "id": "magic-gfw",
+    "version": "1.0.0",
+    "name": "Magic GFW",
+    "documentationURL": "https://github.com/planlx/devcontainer-features/tree/main/src/magic-gfw",
+    "description": "Configure mirrors for faster access within GFW.",
+    "options": {
+        "version": {
+            "default": "latest",
+            "description": "Select the version to install.",
+            "proposals": [
+                "latest"
+            ],
+            "type": "string"
+        }
+    },
+    "installsAfter": [
+        // "ghcr.io/devcontainers-contrib/features/pipx-package",
+        // "ghcr.io/devcontainers/features/python"
+    ]
+}
