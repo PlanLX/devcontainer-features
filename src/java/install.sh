@@ -1,13 +1,4 @@
 #!/usr/bin/env bash
-#-------------------------------------------------------------------------------------------------------------
-# Copyright (c) Microsoft Corporation. All rights reserved.
-# Licensed under the MIT License. See https://go.microsoft.com/fwlink/?linkid=2090316 for license information.
-#-------------------------------------------------------------------------------------------------------------
-#
-# Docs: https://github.com/microsoft/vscode-dev-containers/blob/main/script-library/docs/java.md
-# Maintainer: The VS Code and Codespaces Teams
-#
-# Syntax: ./java-debian.sh [JDK version] [SDKMAN_DIR] [non-root user] [Add to rc files flag]
 
 JAVA_VERSION="${VERSION:-"lts"}"
 INSTALL_GRADLE="${INSTALLGRADLE:-"false"}"
@@ -20,7 +11,6 @@ INSTALL_GROOVY="${INSTALLGROOVY:-"false"}"
 GROOVY_VERSION="${GROOVYVERSION:-"latest"}"
 JDK_DISTRO="${JDKDISTRO:-"ms"}"
 
-export SDKMAN_DIR="${SDKMAN_DIR:-"/usr/local/sdkman"}"
 USERNAME="${USERNAME:-"${_REMOTE_USER:-"automatic"}"}"
 UPDATE_RC="${UPDATE_RC:-"true"}"
 
@@ -78,13 +68,6 @@ clean_up() {
         debian)
             rm -rf /var/lib/apt/lists/*
             ;;
-        rhel)
-            for pkg in epel-release epel-release-latest packages-microsoft-prod; do
-                ${PKG_MGR_CMD} -y remove $pkg 2>/dev/null || /bin/true
-            done
-            rm -rf /var/cache/dnf/* /var/cache/yum/*
-            rm -f /etc/yum.repos.d/docker-ce.repo
-            ;;
     esac
 }
 clean_up
@@ -120,10 +103,6 @@ updaterc() {
                 _bashrc=/etc/bash.bashrc
                 _zshrc=/etc/zsh/zshrc
                 ;;
-            rhel)
-                _bashrc=/etc/bashrc
-                _zshrc=/etc/zshrc
-            ;;
         esac
         echo "Updating ${_bashrc} and ${_zshrc}..."
         if [[ "$(cat ${_bashrc})" != *"$1"* ]]; then
@@ -144,28 +123,6 @@ pkg_manager_update() {
                 ${PKG_MGR_CMD} update -y
             fi
             ;;
-        rhel)
-            if [ ${PKG_MGR_CMD} = "microdnf" ]; then
-                if [ "$(ls /var/cache/yum/* 2>/dev/null | wc -l)" = 0 ]; then
-                    echo "Running ${PKG_MGR_CMD} makecache ..."
-                    ${PKG_MGR_CMD} makecache
-                fi
-            else
-                if [ "$(ls /var/cache/${PKG_MGR_CMD}/* 2>/dev/null | wc -l)" = 0 ]; then
-                    echo "Running ${PKG_MGR_CMD} check-update ..."
-                    set +e
-                        stderr_messages=$(${PKG_MGR_CMD} -q check-update 2>&1)
-                        rc=$?
-                        # centos 7 sometimes returns a status of 100 when it apears to work.
-                        if [ $rc != 0 ] && [ $rc != 100 ]; then
-                            echo "(Error) ${PKG_MGR_CMD} check-update produced the following error message(s):"
-                            echo "${stderr_messages}"
-                            exit 1
-                        fi
-                    set -e
-                fi
-            fi
-            ;;
     esac
 }
 
@@ -174,12 +131,6 @@ check_packages() {
     case ${ADJUSTED_ID} in
         debian)
             if ! dpkg -s "$@" > /dev/null 2>&1; then
-                pkg_manager_update
-                ${INSTALL_CMD} "$@"
-            fi
-            ;;
-        rhel)
-            if ! rpm -q "$@" > /dev/null 2>&1; then
                 pkg_manager_update
                 ${INSTALL_CMD} "$@"
             fi
@@ -197,41 +148,6 @@ get_jdk_distro() {
     fi
 }
 
-# Use SDKMAN to install something using a partial version match
-sdk_install() {
-    local install_type=$1
-    local requested_version=$2
-    local prefix=$3
-    local suffix="${4:-"\\s*"}"
-    local full_version_check=${5:-".*-[a-z]+"}
-    local set_as_default=${6:-"true"}
-    if [ "${requested_version}" = "none" ]; then return; fi
-    # Blank will install latest stable version SDKMAN has
-    if [ "${requested_version}" = "latest" ] || [ "${requested_version}" = "lts" ] || [ "${requested_version}" = "default" ]; then
-         requested_version=""
-    elif echo "${requested_version}" | grep -oE "${full_version_check}" > /dev/null 2>&1; then
-        echo "${requested_version}"
-    else
-        local regex="${prefix}\\K[0-9]+\\.?[0-9]*\\.?[0-9]*${suffix}"
-        local version_list=$(su ${USERNAME} -c ". \${SDKMAN_DIR}/bin/sdkman-init.sh && sdk list ${install_type} 2>&1 | grep -oP \"${regex}\" | tr -d ' ' | sort -rV")
-        if [ "${requested_version}" = "latest" ] || [ "${requested_version}" = "current" ]; then
-            requested_version="$(echo "${version_list}" | head -n 1)"
-        else
-            set +e
-            requested_version="$(echo "${version_list}" | grep -E -m 1 "^${requested_version//./\\.}([\\.\\s]|-|$)")"
-            set -e
-        fi
-        if [ -z "${requested_version}" ] || ! echo "${version_list}" | grep "^${requested_version//./\\.}$" > /dev/null 2>&1; then
-            echo -e "Version $2 not found. Available versions:\n${version_list}" >&2
-            exit 1
-        fi
-    fi
-    if [ "${set_as_default}" = "true" ]; then
-        JAVA_VERSION=${requested_version}
-    fi
-
-    su ${USERNAME} -c "umask 0002 && . ${SDKMAN_DIR}/bin/sdkman-init.sh && sdk install ${install_type} ${requested_version} && sdk flush archives && sdk flush temp"
-}
 
 export DEBIAN_FRONTEND=noninteractive
 
@@ -243,11 +159,10 @@ fi
 
 # Install dependencies,
 check_packages ca-certificates zip unzip sed findutils util-linux tar
+check_packages openjdk-8-jdk
 # Make sure passwd (Debian) and shadow-utils RHEL family is installed
 if [ ${ADJUSTED_ID} = "debian" ]; then
     check_packages passwd
-elif [ ${ADJUSTED_ID} = "rhel" ]; then
-    check_packages shadow-utils
 fi
 # minimal RHEL installs may not include curl, or includes curl-minimal instead.
 # Install curl if the "curl" command is not present.
@@ -255,56 +170,25 @@ if ! type curl > /dev/null 2>&1; then
     check_packages curl
 fi
 
-# Install sdkman if not installed
-if [ ! -d "${SDKMAN_DIR}" ]; then
-    # Create sdkman group, dir, and set sticky bit
-    if ! cat /etc/group | grep -e "^sdkman:" > /dev/null 2>&1; then
-        groupadd -r sdkman
-    fi
-    usermod -a -G sdkman ${USERNAME}
-    umask 0002
-    # Install SDKMAN
-    curl -sSL "https://get.sdkman.io?rcupdate=false" | bash
-    chown -R "${USERNAME}:sdkman" ${SDKMAN_DIR}
-    find ${SDKMAN_DIR} -type d -print0 | xargs -d '\n' -0 chmod g+s
-    # Add sourcing of sdkman into bashrc/zshrc files (unless disabled)
-    updaterc "export SDKMAN_DIR=${SDKMAN_DIR}\n. \${SDKMAN_DIR}/bin/sdkman-init.sh"
-fi
-
-get_jdk_distro ${JAVA_VERSION}
-sdk_install java ${JAVA_VERSION} "\\s*" "(\\.[a-z0-9]+)*-${JDK_DISTRO}\\s*" ".*-[a-z]+$" "true"
-
-# Additional java versions to be installed but not be set as default.
-if [ ! -z "${ADDITIONAL_VERSIONS}" ]; then
-    OLDIFS=$IFS
-    IFS=","
-        read -a additional_versions <<< "$ADDITIONAL_VERSIONS"
-        for version in "${additional_versions[@]}"; do
-            get_jdk_distro ${version}
-            sdk_install java ${version} "\\s*" "(\\.[a-z0-9]+)*-${JDK_DISTRO}\\s*" ".*-[a-z]+$" "false"
-        done
-    IFS=$OLDIFS
-    su ${USERNAME} -c ". ${SDKMAN_DIR}/bin/sdkman-init.sh && sdk default java ${JAVA_VERSION}"
-fi
 
 # Install Ant
 if [[ "${INSTALL_ANT}" = "true" ]] && ! ant -version > /dev/null 2>&1; then
-    sdk_install ant ${ANT_VERSION}
+    check_packages ant
 fi
 
 # Install Gradle
 if [[ "${INSTALL_GRADLE}" = "true" ]] && ! gradle --version > /dev/null 2>&1; then
-    sdk_install gradle ${GRADLE_VERSION}
+    check_packages gradle
 fi
 
 # Install Maven
 if [[ "${INSTALL_MAVEN}" = "true" ]] && ! mvn --version > /dev/null 2>&1; then
-    sdk_install maven ${MAVEN_VERSION}
+    check_packages maven
 fi
 
 # Install Groovy
 if [[ "${INSTALL_GROOVY}" = "true" ]] && ! groovy --version > /dev/null 2>&1; then
-    sdk_install groovy "${GROOVY_VERSION}"
+    check_packages groovy
 fi
 
 # Clean up
