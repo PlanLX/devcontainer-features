@@ -1,5 +1,6 @@
 {
-  "image": "mcr.microsoft.com/devcontainers/base:ubuntu-22.04",
+  // "image": "mcr.microsoft.com/devcontainers/base:ubuntu-22.04",
+  "image": "gzv-reg.piston.ink/dev/base:ubuntu-20.04",
   "customizations": {
     "vscode": {
       "extensions": [
