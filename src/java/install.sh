@@ -14,6 +14,7 @@ GROOVY_VERSION="${GROOVYVERSION:-"none"}"
 USERNAME="${USERNAME:-"${_REMOTE_USER:-"automatic"}"}"
 UPDATE_RC="${UPDATE_RC:-"true"}"
 
+
 # Comma-separated list of java versions to be installed
 # alongside JAVA_VERSION, but not set as default.
 ADDITIONAL_VERSIONS="${ADDITIONALVERSIONS:-""}"
@@ -189,14 +190,20 @@ if [ -n "${JAVA_VERSION}" ]; then
     JDK_HOME="/usr/lib/jvm/jdk$JAVA_VERSION"
     JAVA_HOME="/usr/lib/jvm/jdk"
     mkdir -p "$JDK_HOME"
-    getFile "https://api.adoptium.net/v3/binary/latest/${JAVA_VERSION}/ga/linux/x64/jdk/hotspot/normal/adoptium?project=jdk" - | tar xzf - -C "$JDK_HOME"  --strip-components=1
-    
+    if [ -n "${JDKURL}" ]; then
+        getFile ${JDKURL} /temp/jdk
+    else
+        getFile "https://api.adoptium.net/v3/binary/latest/${JAVA_VERSION}/ga/linux/x64/jdk/hotspot/normal/adoptium?project=jdk" /temp/jdk
+    fi
+    tar xzf /temp/jdk -C "$JDK_HOME"  --strip-components=1
+    ln -sf ${JDK_HOME} ${JAVA_HOME}
+    ln -sf ${JDK_HOME}/bin/java /usr/bin/java
+    ln -sf ${JDK_HOME}/bin/javac /usr/bin/javac
+    ln -sf ${JDK_HOME}/bin/keytool /usr/bin/keytool
+    echo "export JAVA_HOME=${JAVA_HOME}" >> /etc/profile.d/00-restore-env.sh
+    rm -f /temp/jdk
 fi
-ln -sf ${JDK_HOME} ${JAVA_HOME}
-ln -sf ${JDK_HOME}/bin/java /usr/bin/java
-ln -sf ${JDK_HOME}/bin/javac /usr/bin/javac
-ln -sf ${JDK_HOME}/bin/keytool /usr/bin/keytool
-echo "export JAVA_HOME=${JAVA_HOME}" >> /etc/profile.d/00-restore-env.sh
+
 
 # Install Ant
 if [[ "${INSTALL_ANT}" = "true" ]] && ! ant -version > /dev/null 2>&1; then
@@ -211,10 +218,14 @@ fi
 
 # Install Maven
 if [[ "${INSTALL_MAVEN}" = "true" ]] && ! mvn --version > /dev/null 2>&1; then
-    # https://dlcdn.apache.org/maven/maven-3/3.9.6/binaries/apache-maven-3.9.6-bin.tar.gz
     mkdir -p /usr/share/maven /usr/share/maven/ref
-    getFile "https://dlcdn.apache.org/maven/maven-3/$MAVEN_VERSION/binaries/apache-maven-$MAVEN_VERSION-bin.tar.gz" /tmp/maven
-    tar xzvf /tmp/maven -C /usr/share/maven --strip-components=1
+    if [ -n "${MAVENURL}" ]; then
+        getFile ${MAVENURL} /tmp/maven
+    else
+        getFile "https://dlcdn.apache.org/maven/maven-3/$MAVEN_VERSION/binaries/apache-maven-$MAVEN_VERSION-bin.tar.gz" /tmp/maven
+    fi
+    
+    tar xzf /tmp/maven -C /usr/share/maven --strip-components=1
     ln -sf /usr/share/maven/bin/mvn /usr/bin/mvn
     echo "export MAVEN_HOME=/usr/share/maven" >> /etc/profile.d/00-restore-env.sh
     echo "export MAVEN_CONFIG=/root/.m2" >> /etc/profile.d/00-restore-env.sh

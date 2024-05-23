@@ -49,6 +49,9 @@
       "default": false,
       "description": "Install Maven, a management tool for Java"
     },
+    "jdkUrl": {
+      "type": "string"
+    },
     "mavenVersion": {
       "type": "string",
       "proposals": [
@@ -57,6 +60,9 @@
       ],
       "default": "3.9.6",
       "description": "Select or enter a Maven version"
+    },
+    "mavenUrl": {
+      "type": "string"
     },
     "installAnt": {
       "type": "boolean",
