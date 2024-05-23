@@ -2,19 +2,19 @@
   "id": "java",
   "version": "1.0.0",
   "name": "Java",
-  "documentationURL": "https://github.com/devcontainers/features/tree/main/src/java",
+  "documentationURL": "https://github.com/devcontainers/features/tree/main/src/java ; https://api.adoptium.net/v3/info/available_releases",
   "description": "Installs Java, and needed dependencies.",
   "options": {
     "version": {
       "type": "string",
       "proposals": [
-        "none",
+        "21",
         "17",
         "11",
         "8"
       ],
       "default": "17",
-      "description": "Select or enter a Java version to install"
+      "description": "Select or enter a Java lts version to install"
     },
     // "jdkDistro": {
     //   "type": "string",
@@ -52,12 +52,10 @@
     "mavenVersion": {
       "type": "string",
       "proposals": [
-        "none",
-        "3.8.6",
-        "3.6.3",
-        "3.5.4"
+        "3.9.6",
+        "3.8.6"
       ],
-      "default": "none",
+      "default": "3.9.6",
       "description": "Select or enter a Maven version"
     },
     "installAnt": {
@@ -98,7 +96,7 @@
         "vscjava.vscode-java-pack"
       ],
       "settings": {
-        "java.import.gradle.java.home": "${env:JAVA_HOME}"
+        "java.import.gradle.java.home": "${JAVA_HOME}"
       }
     }
   },
