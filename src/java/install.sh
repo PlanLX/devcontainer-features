@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 
-JAVA_VERSION="${VERSION:-"lts"}"
+JAVA_VERSION="${VERSION:-"17"}"
 INSTALL_GRADLE="${INSTALLGRADLE:-"false"}"
-GRADLE_VERSION="${GRADLEVERSION:-"latest"}"
+GRADLE_VERSION="${GRADLEVERSION:-"none"}"
 INSTALL_MAVEN="${INSTALLMAVEN:-"false"}"
-MAVEN_VERSION="${MAVENVERSION:-"latest"}"
+MAVEN_VERSION="${MAVENVERSION:-"none"}"
 INSTALL_ANT="${INSTALLANT:-"false"}"
-ANT_VERSION="${ANTVERSION:-"latest"}"
+ANT_VERSION="${ANTVERSION:-"none"}"
 INSTALL_GROOVY="${INSTALLGROOVY:-"false"}"
-GROOVY_VERSION="${GROOVYVERSION:-"latest"}"
-JDK_DISTRO="${JDKDISTRO:-"ms"}"
+GROOVY_VERSION="${GROOVYVERSION:-"none"}"
+# JDK_DISTRO="${JDKDISTRO:-"ms"}"
 
 USERNAME="${USERNAME:-"${_REMOTE_USER:-"automatic"}"}"
 UPDATE_RC="${UPDATE_RC:-"true"}"
@@ -31,13 +31,6 @@ fi
 MAJOR_VERSION_ID=$(echo ${VERSION_ID} | cut -d . -f 1)
 if [ "${ID}" = "debian" ] || [ "${ID_LIKE}" = "debian" ]; then
     ADJUSTED_ID="debian"
-elif [[ "${ID}" = "rhel" || "${ID}" = "fedora" || "${ID}" = "mariner" || "${ID_LIKE}" = *"rhel"* || "${ID_LIKE}" = *"fedora"* || "${ID_LIKE}" = *"mariner"* ]]; then
-    ADJUSTED_ID="rhel"
-    if [[ "${ID}" = "rhel" ]] || [[ "${ID}" = *"alma"* ]] || [[ "${ID}" = *"rocky"* ]]; then
-        VERSION_CODENAME="rhel${MAJOR_VERSION_ID}"
-    else
-        VERSION_CODENAME="${ID}${MAJOR_VERSION_ID}"
-    fi
 else
     echo "Linux distro ${ID} not supported."
     exit 1
@@ -47,15 +40,6 @@ fi
 if type apt-get > /dev/null 2>&1; then
     PKG_MGR_CMD=apt-get
     INSTALL_CMD="${PKG_MGR_CMD} -y install --no-install-recommends"
-elif type microdnf > /dev/null 2>&1; then
-    PKG_MGR_CMD=microdnf
-    INSTALL_CMD="${PKG_MGR_CMD} -y install --refresh --best --nodocs --noplugins --setopt=install_weak_deps=0"
-elif type dnf > /dev/null 2>&1; then
-    PKG_MGR_CMD=dnf
-    INSTALL_CMD="${PKG_MGR_CMD} -y install"
-elif type yum > /dev/null 2>&1; then
-    PKG_MGR_CMD=yum
-    INSTALL_CMD="${PKG_MGR_CMD} -y install"
 else
     echo "(Error) Unable to find a supported package manager."
     exit 1

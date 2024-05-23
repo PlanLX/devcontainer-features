@@ -1,6 +1,6 @@
 {
   "id": "java",
-  "version": "1.4.1",
+  "version": "1.0.0",
   "name": "Java",
   "documentationURL": "https://github.com/devcontainers/features/tree/main/src/java",
   "description": "Installs Java, and needed dependencies.",
@@ -8,27 +8,26 @@
     "version": {
       "type": "string",
       "proposals": [
-        "latest",
         "none",
         "17",
         "11",
         "8"
       ],
-      "default": "latest",
+      "default": "17",
       "description": "Select or enter a Java version to install"
     },
-    "jdkDistro": {
-      "type": "string",
-      "proposals": [
-        "ms",
-        "open",
-        "oracle",
-        "tem",
-        "amzn"
-      ],
-      "default": "ms",
-      "description": "Select or enter a JDK distribution"
-    },
+    // "jdkDistro": {
+    //   "type": "string",
+    //   "proposals": [
+    //     "ms",
+    //     "open",
+    //     "oracle",
+    //     "tem",
+    //     "amzn"
+    //   ],
+    //   "default": "ms",
+    //   "description": "Select or enter a JDK distribution"
+    // },
     "installGradle": {
       "type": "boolean",
       "default": false,
@@ -37,12 +36,12 @@
     "gradleVersion": {
       "type": "string",
       "proposals": [
-        "latest",
+        "none",
         "7.5.1",
         "6.9.3",
         "5.6.4"
       ],
-      "default": "latest",
+      "default": "none",
       "description": "Select or enter a Gradle version"
     },
     "installMaven": {
@@ -53,12 +52,12 @@
     "mavenVersion": {
       "type": "string",
       "proposals": [
-        "latest",
+        "none",
         "3.8.6",
         "3.6.3",
         "3.5.4"
       ],
-      "default": "latest",
+      "default": "none",
       "description": "Select or enter a Maven version"
     },
     "installAnt": {
@@ -69,11 +68,11 @@
     "antVersion": {
       "type": "string",
       "proposals": [
-        "latest",
+        "none",
         "1.10.12",
         "1.9.15"
       ],
-      "default": "latest",
+      "default": "none",
       "description": "Select or enter an Ant version"
     },
     "installGroovy": {
@@ -84,12 +83,12 @@
     "groovyVersion": {
       "type": "string",
       "proposals": [
-        "latest",
+        "none",
         "2.5.22",
         "3.0.19",
         "4.0.16"
       ],
-      "default": "latest",
+      "default": "none",
       "description": "Select or enter a Groovy version"
     } 
   },
@@ -99,14 +98,14 @@
         "vscjava.vscode-java-pack"
       ],
       "settings": {
-        "java.import.gradle.java.home": "/usr/local/sdkman/candidates/java/current"
+        "java.import.gradle.java.home": "${env:JAVA_HOME}"
       }
     }
   },
-  "containerEnv": {
-    "JAVA_HOME": "/usr/local/sdkman/candidates/java/current",
-    "PATH": "/usr/local/sdkman/bin:/usr/local/sdkman/candidates/java/current/bin:/usr/local/sdkman/candidates/gradle/current/bin:/usr/local/sdkman/candidates/maven/current/bin:/usr/local/sdkman/candidates/ant/current/bin:${PATH}"
-  },
+  // "containerEnv": {
+  //   "JAVA_HOME": "${env:JAVA_HOME}",
+  //   "PATH": "/usr/lib/jvm/java-1.8.0-openjdk-amd64/bin:/usr/local/sdkman/candidates/gradle/current/bin:/usr/local/sdkman/candidates/maven/current/bin:/usr/local/sdkman/candidates/ant/current/bin:${PATH}"
+  // },
   "installsAfter": [
     "ghcr.io/devcontainers/features/common-utils"
   ]
