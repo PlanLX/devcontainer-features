@@ -50,7 +50,8 @@
       "description": "Install Maven, a management tool for Java"
     },
     "jdkUrl": {
-      "type": "string"
+      "type": "string",
+      "default": "none"
     },
     "mavenVersion": {
       "type": "string",
@@ -62,7 +63,8 @@
       "description": "Select or enter a Maven version"
     },
     "mavenUrl": {
-      "type": "string"
+      "type": "string",
+      "default": "none"
     },
     "installAnt": {
       "type": "boolean",
