@@ -228,7 +228,7 @@ if [[ "${INSTALL_MAVEN}" = "true" ]] && ! mvn --version > /dev/null 2>&1; then
     tar xzf /tmp/maven -C /usr/share/maven --strip-components=1
     ln -sf /usr/share/maven/bin/mvn /usr/bin/mvn
     echo "export MAVEN_HOME=/usr/share/maven" >> /etc/profile.d/00-restore-env.sh
-    echo "export MAVEN_CONFIG=/root/.m2" >> /etc/profile.d/00-restore-env.sh
+    echo "export MAVEN_CONFIG=/tmp/.m2" >> /etc/profile.d/00-restore-env.sh
     rm -f /tmp/maven 
     # COPY maven-settings.xml /usr/share/maven/ref/
 fi
