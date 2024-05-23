@@ -191,17 +191,17 @@ if [ -n "${JAVA_VERSION}" ]; then
     JAVA_HOME="/usr/lib/jvm/jdk"
     mkdir -p "$JDK_HOME"
     if [ "${JDKURL}" != "none" ]; then
-        getFile ${JDKURL} /temp/jdk
+        getFile ${JDKURL} /tmp/jdk
     else
         getFile "https://api.adoptium.net/v3/binary/latest/${JAVA_VERSION}/ga/linux/x64/jdk/hotspot/normal/adoptium?project=jdk" /temp/jdk
     fi
-    tar xzf /temp/jdk -C "$JDK_HOME"  --strip-components=1
+    tar xzf /tmp/jdk -C "$JDK_HOME"  --strip-components=1
     ln -sf ${JDK_HOME} ${JAVA_HOME}
     ln -sf ${JDK_HOME}/bin/java /usr/bin/java
     ln -sf ${JDK_HOME}/bin/javac /usr/bin/javac
     ln -sf ${JDK_HOME}/bin/keytool /usr/bin/keytool
     echo "export JAVA_HOME=${JAVA_HOME}" >> /etc/profile.d/00-restore-env.sh
-    rm -f /temp/jdk
+    rm -f /tmp/jdk
 fi
 
 
