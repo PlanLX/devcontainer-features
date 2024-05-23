@@ -190,7 +190,7 @@ if [ -n "${JAVA_VERSION}" ]; then
     JDK_HOME="/usr/lib/jvm/jdk$JAVA_VERSION"
     JAVA_HOME="/usr/lib/jvm/jdk"
     mkdir -p "$JDK_HOME"
-    if [ -n "${JDKURL}" ]; then
+    if [ "${JDKURL}" != "none" ]; then
         getFile ${JDKURL} /temp/jdk
     else
         getFile "https://api.adoptium.net/v3/binary/latest/${JAVA_VERSION}/ga/linux/x64/jdk/hotspot/normal/adoptium?project=jdk" /temp/jdk
@@ -219,7 +219,7 @@ fi
 # Install Maven
 if [[ "${INSTALL_MAVEN}" = "true" ]] && ! mvn --version > /dev/null 2>&1; then
     mkdir -p /usr/share/maven /usr/share/maven/ref
-    if [ -n "${MAVENURL}" ]; then
+    if [ "${MAVENURL}" != "none" ]; then
         getFile ${MAVENURL} /tmp/maven
     else
         getFile "https://dlcdn.apache.org/maven/maven-3/$MAVEN_VERSION/binaries/apache-maven-$MAVEN_VERSION-bin.tar.gz" /tmp/maven
