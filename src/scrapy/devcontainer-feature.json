@@ -1,0 +1,23 @@
+{
+    "id": "scrapy",
+    "version": "1.0.0",
+    "name": "Scrapy",
+    "documentationURL": "https://github.com/PlanLX/devcontainer-features/tree/main/src/scrapy",
+    "description": "Scrapy is a fast high-level web crawling and web scraping framework",
+    "options": {
+        "version": {
+            "default": "latest",
+            "description": "Select the version to install.",
+            "proposals": [
+                "latest"
+            ],
+            "type": "string"
+        },
+        "pipIndexUrl": {
+        "type": "string",
+        "default": "none"
+        }
+    },
+    "installsAfter": [
+    ]
+}
